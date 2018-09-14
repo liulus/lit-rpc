@@ -1,19 +1,10 @@
 package com.github.lit.rpc;
 
-import com.github.lit.rpc.protocol.LitRequest;
-import com.github.lit.rpc.protocol.LitResponse;
-import com.github.lit.rpc.protocol.ProtostuffDecoder;
-import com.github.lit.rpc.protocol.ProtostuffEncoder;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import com.github.lit.rpc.client.LitRpcClient;
+import com.github.lit.rpc.service.HelloWorldService;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * @author liulu
@@ -24,59 +15,22 @@ import java.util.List;
 public class ClientApplication {
 
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
 
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        Bootstrap bootstrap = new Bootstrap();
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(ClientConfig.class);
 
-        bootstrap.group(workerGroup);
-        bootstrap.channel(NioSocketChannel.class);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new ProtostuffDecoder(LitResponse.class));
-                ch.pipeline().addLast(new NettyClientHandler());
-                ch.pipeline().addLast(new ProtostuffEncoder(LitRequest.class));
-            }
-        });
+        HelloWorldService bean = applicationContext.getBean(HelloWorldService.class);
+        String cat = bean.sayHello("cat");
 
-        ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(4001)).sync();
-
-        channelFuture.channel().closeFuture().sync();
+        System.out.println(cat);
 
     }
 
-    static class NettyClientHandler extends ChannelInboundHandlerAdapter {
+    @LitRpcClient(port = 4001, servicePackages = "com.github.lit.rpc.service")
+    static class ClientConfig {
 
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            log.info("channelActive");
-
-            LitRequest request = new LitRequest();
-
-            request.setClassName("com.github.lit.rpc.service.HelloWorldService");
-            request.setMethodName("sayHello");
-
-            List<Object> args = new ArrayList<>();
-            args.add("cat");
-
-            request.setParamTypes(new Class[]{String.class});
-            request.setParamValues(args);
-
-            ctx.channel().writeAndFlush(request);
-        }
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            log.info("channelRead {}", msg);
-            if (msg instanceof LitResponse) {
-                log.info("sdsd {}", msg);
-            }
-        }
     }
-
 
 
 }
