@@ -47,7 +47,7 @@ public class LitRpcServiceInvokeHandler extends ChannelInboundHandlerAdapter {
             log.warn("未能找到 类 {} 的方法 {}", request.getClassName(), request.getMethodName());
             return null;
         }
-        Object retValue = ReflectionUtils.invokeMethod(method, obj, request.getParamValues().toArray());
+        Object retValue = ReflectionUtils.invokeMethod(method, obj, request.getParamValues());
 
         LitResponse response = new LitResponse();
         response.setReturnType(method.getReturnType().getName());

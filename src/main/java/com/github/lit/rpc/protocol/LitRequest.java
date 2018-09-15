@@ -2,8 +2,6 @@ package com.github.lit.rpc.protocol;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author liulu
  * @version : v1.0
@@ -18,7 +16,7 @@ public class LitRequest {
 
     private Class<?>[] paramTypes;
 
-    private List<Object> paramValues;
+    private Object[] paramValues;
 
 
 

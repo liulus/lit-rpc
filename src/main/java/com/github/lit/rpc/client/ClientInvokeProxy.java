@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * @author liulu
@@ -36,7 +35,7 @@ public class ClientInvokeProxy implements InvocationHandler {
         request.setClassName(interfaceClass.getName());
         request.setMethodName(method.getName());
         request.setParamTypes(method.getParameterTypes());
-        request.setParamValues(Arrays.asList(args));
+        request.setParamValues(args);
 
         NettyClient client = new NettyClient(host, port);
         LitResponse response = client.send(request);

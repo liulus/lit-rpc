@@ -21,9 +21,17 @@ public class ClientApplication {
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(ClientConfig.class);
 
         HelloWorldService bean = applicationContext.getBean(HelloWorldService.class);
-        String cat = bean.sayHello("cat");
+//        String cat = bean.sayHello("cat");
 
-        System.out.println(cat);
+        HelloReq req = new HelloReq();
+        req.setA("E");
+        req.setB(123.94D);
+        req.setC(23);
+
+        HelloRes res = bean.req(req);
+
+
+        System.out.println(res);
 
     }
 
